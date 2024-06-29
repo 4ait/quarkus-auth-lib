@@ -25,10 +25,10 @@ publishing {
       from(components["java"])
 
       pom {
-        name = "Session Authorization Library"
+        name = "Quarkus Session Authorization Library"
         description =
           "This library provides utilities for user authorization and session management. It utilizes dependency injection with Quarkus and includes several key classes for handling user authorization, session creation, and token encryption."
-        url = "https://github.com/4ait/kotlin-errorhandling-library"
+        url = "https://github.com/4ait/quarkus-auth-lib"
         inceptionYear = "2024"
         licenses {
           license {
@@ -44,9 +44,9 @@ publishing {
           }
         }
         scm {
-          connection = "scm:git:git://github.com:4ait/kotlin-error-handling-library.git"
-          developerConnection = "scm:git:ssh://github.com:4ait/kotlin-error-handling-library.git"
-          url = "https://github.com/4ait/kotlin-error-handling-library"
+          connection = "scm:git:git://github.com:4ait/quarkus-auth-lib.git"
+          developerConnection = "scm:git:ssh://github.com:4ait/quarkus-auth-lib.git"
+          url = "https://github.com/4ait/quarkus-auth-lib"
         }
       }
     }
