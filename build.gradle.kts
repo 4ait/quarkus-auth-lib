@@ -1,10 +1,11 @@
+import org.jreleaser.model.Active
 
 val quarkusPlatformGroupId: String by rootProject
 val quarkusPlatformArtifactId: String by rootProject
 val quarkusPlatformVersion: String by rootProject
 
 group = "ru.code4a"
-version = "1.0.0"
+version = file("version").readText().trim()
 
 plugins {
   kotlin("jvm") version "2.0.0"
@@ -15,6 +16,11 @@ plugins {
   `java-library`
   `maven-publish`
   id("org.jreleaser") version "1.12.0"
+}
+
+java {
+  withJavadocJar()
+  withSourcesJar()
 }
 
 publishing {
@@ -69,6 +75,7 @@ repositories {
 
 tasks.withType<Test> {
   useJUnitPlatform()
+  dependsOn(tasks["jandex"])
 }
 
 dependencies {
@@ -78,9 +85,8 @@ dependencies {
   implementation("com.lambdaworks:scrypt:1.4.0")
   implementation("ru.code4a:error-handling:1.0.0")
 
-  testImplementation("io.quarkus:quarkus-junit5")
-  testImplementation("io.quarkus:quarkus-junit5-mockito")
-  testImplementation("io.rest-assured:rest-assured")
+  testImplementation(kotlin("test"))
+  testImplementation("org.mockito:mockito-core:5.12.0")
 }
 
 tasks.named("compileTestKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
@@ -116,17 +122,4 @@ jreleaser {
       }
     }
   }
-}
-
-/**
- * Reason: Task ':libs:authorization:test' uses this output of task ':libs:authorization:jandex' without declaring an explicit or implicit dependency.
- * This can lead to incorrect results being produced, depending on what order the tasks are executed.
- *
- *     Possible solutions:
- *       1. Declare task ':libs:authorization:jandex' as an input of ':libs:authorization:test'.
- *       2. Declare an explicit dependency on ':libs:authorization:jandex' from ':libs:authorization:test' using Task#dependsOn.
- *       3. Declare an explicit dependency on ':libs:authorization:jandex' from ':libs:authorization:test' using Task#mustRunAfter.
- */
-tasks.named("test") {
-  // enabled = false
 }

@@ -1,11 +1,13 @@
 package ru.code4a.auth.test
 
-import io.quarkus.test.InjectMock
-import io.quarkus.test.junit.QuarkusTest
-import jakarta.inject.Inject
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
+import org.mockito.Mockito.any
+import org.mockito.Mockito.eq
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import ru.code4a.auth.SessionCreatorWithERPAuthAlgorithm
 import ru.code4a.auth.UserAuthorizerByLoginPasswordWithERPAuthAlgorithm
 import ru.code4a.auth.encoding.DecoderBase64
@@ -18,28 +20,33 @@ import ru.code4a.auth.structures.UserData
 import ru.code4a.errorhandling.Ok
 import java.time.Instant
 
-@QuarkusTest
 class UserAuthorizerByLoginPasswordWithERPAuthAlgorithmTest {
-  @Inject
   private lateinit var userAuthorizer: UserAuthorizerByLoginPasswordWithERPAuthAlgorithm
-
-  @InjectMock
   private lateinit var decoderBase64: DecoderBase64
-
-  @InjectMock
   private lateinit var userAuthorizationHashComputer: UserAuthorizationHashComputer
-
-  @InjectMock
   private lateinit var sessionCreator: SessionCreatorWithERPAuthAlgorithm
-
-  @InjectMock
   private lateinit var userByLoginGetter: UserByLoginGetter
-
-  @InjectMock
   private lateinit var userSessionTokenNewIdGetter: UserSessionTokenNewIdGetter
-
-  @InjectMock
   private lateinit var userSessionStorageWriter: UserSessionStorageWriter
+
+  @BeforeEach
+  fun setup() {
+    decoderBase64 = mock(DecoderBase64::class.java)
+    userAuthorizationHashComputer = mock(UserAuthorizationHashComputer::class.java)
+    sessionCreator = mock(SessionCreatorWithERPAuthAlgorithm::class.java)
+    userByLoginGetter = mock(UserByLoginGetter::class.java)
+    userSessionTokenNewIdGetter = mock(UserSessionTokenNewIdGetter::class.java)
+    userSessionStorageWriter = mock(UserSessionStorageWriter::class.java)
+
+    userAuthorizer =
+      UserAuthorizerByLoginPasswordWithERPAuthAlgorithm(
+        decoderBase64,
+        userAuthorizationHashComputer,
+        sessionCreator
+      )
+  }
+
+  private inline fun <reified T> any(): T = any(T::class.java)
 
   @Test
   fun testAuthorizeUserByLoginPassword_Success() {
@@ -52,7 +59,7 @@ class UserAuthorizerByLoginPasswordWithERPAuthAlgorithmTest {
     val hash = byteArrayOf(4, 5, 6)
     val computedHash = byteArrayOf(4, 5, 6)
 
-    `when`(userByLoginGetter.get(login)).thenReturn(Ok(UserData(userId, saltBase64, hashBase64)))
+    `when`(userByLoginGetter.get(login)).thenReturn(Ok(UserData(userId, hashBase64, saltBase64)))
     `when`(decoderBase64.decode(saltBase64)).thenReturn(salt)
     `when`(decoderBase64.decode(hashBase64)).thenReturn(hash)
     `when`(userAuthorizationHashComputer.computeHash(password.toByteArray(), salt)).thenReturn(computedHash)

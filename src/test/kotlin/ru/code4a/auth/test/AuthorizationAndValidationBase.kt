@@ -1,7 +1,7 @@
 package ru.code4a.auth.test
 
-import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import ru.code4a.auth.SessionAuthorizerBySessionUserTokenWithERPAuthAlgorithm
 import ru.code4a.auth.SessionRequestNewAccessTokenWithERPAuthAlgorithm
@@ -16,13 +16,16 @@ import ru.code4a.errorhandling.Ok
 import ru.code4a.errorhandling.OkOrError
 import java.time.Instant
 
-@QuarkusTest
+/**
+ * TODO: Need to refactor from inject to mockito
+ */
+@Disabled
 class AuthorizationAndValidationBase {
   @Inject
   lateinit var userAuthorizerByLoginPasswordWithERPAuthAlgorithm: UserAuthorizerByLoginPasswordWithERPAuthAlgorithm
 
   @Inject
-  lateinit var authorizationDataUserCreator: _root_ide_package_.ru.code4a.auth.AuthorizationDataUserCreator
+  lateinit var authorizationDataUserCreator: ru.code4a.auth.AuthorizationDataUserCreator
 
   @Inject
   lateinit var sessionAuthorizerBySessionUserTokenWithERPAuthAlgorithm: SessionAuthorizerBySessionUserTokenWithERPAuthAlgorithm
