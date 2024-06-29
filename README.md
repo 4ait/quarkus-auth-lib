@@ -2,6 +2,10 @@
 
 This library provides a robust authorization system for Quarkus applications, implementing secure session management and user authentication.
 
+# Versions
+
+* 0.1.0+ Required Quarkus 3.12.0+
+
 # Features
 
 * User authentication with login and password

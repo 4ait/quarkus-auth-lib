@@ -1,9 +1,5 @@
 import org.jreleaser.model.Active
 
-val quarkusPlatformGroupId: String by rootProject
-val quarkusPlatformArtifactId: String by rootProject
-val quarkusPlatformVersion: String by rootProject
-
 group = "ru.code4a"
 version = file("version").readText().trim()
 
@@ -79,8 +75,9 @@ tasks.withType<Test> {
 }
 
 dependencies {
-  implementation(enforcedPlatform("$quarkusPlatformGroupId:$quarkusPlatformArtifactId:$quarkusPlatformVersion"))
-  implementation("io.quarkus:quarkus-arc")
+  implementation("io.quarkus:quarkus-arc:3.12.0")
+  // implementation("jakarta.enterprise:jakarta.enterprise.cdi-api:4.1.0")
+  // implementation("org.eclipse.microprofile.config:microprofile-config-api:3.1")
 
   implementation("com.lambdaworks:scrypt:1.4.0")
   implementation("ru.code4a:error-handling:1.0.0")
