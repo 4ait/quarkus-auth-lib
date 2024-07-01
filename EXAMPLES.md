@@ -137,7 +137,7 @@ To use this library, you need to implement several interfaces. Here are basic ex
 class MyUserByLoginGetter : UserByLoginGetter {
     override fun get(login: String): OkOrError<UserByLoginGetter.UserData, UserByLoginGetter.GetError> {
         // Fetch user data from your database
-        // Return Ok(userData) if found, or Error(GetError.NotFound) if not
+        // Return Ok(userData) if found, or Error(UserByLoginGetter.GetError) if not
     }
 }
 ```
