@@ -33,7 +33,11 @@ class SessionUserTokenCreator(
         .order(ByteOrder.BIG_ENDIAN)
         .array()
 
-    val sessionUserTokenBytes = cipherSessionUserToken.encrypt(packedSessionUserPrivateToken)
+    val sessionUserTokenBytes =
+      cipherSessionUserToken.encrypt(
+        sessionTokenId = userSessionTokenId,
+        data = packedSessionUserPrivateToken
+      )
 
     return encoderBase64.encode(sessionUserTokenBytes)
   }

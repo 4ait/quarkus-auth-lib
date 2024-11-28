@@ -25,6 +25,22 @@ class CipherAESCBCIVMSG(
       )
   }
 
+  fun encryptWithIV(
+    input: ByteArray,
+    key: ByteArray,
+    iv: ByteArray,
+    saltSizeBytes: Int
+  ): ByteArray {
+    val salt = secureBytesGeneratorStrong.generate(saltSizeBytes)
+
+    return iv +
+      cipherAESCBC.encrypt(
+        salt + input,
+        key,
+        iv
+      )
+  }
+
   fun decrypt(
     input: ByteArray,
     key: ByteArray,

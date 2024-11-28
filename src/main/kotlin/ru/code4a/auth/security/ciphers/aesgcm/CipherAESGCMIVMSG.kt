@@ -26,6 +26,23 @@ class CipherAESGCMIVMSG(
       )
   }
 
+  fun encryptWithIV(
+    input: ByteArray,
+    key: ByteArray,
+    iv: ByteArray,
+    saltSizeBytes: Int
+  ): ByteArray {
+    val salt = secureBytesGeneratorStrong.generate(saltSizeBytes)
+
+    return iv +
+      cipherAESGCM.encrypt(
+        salt + input,
+        key,
+        iv,
+        iv.size
+      )
+  }
+
   fun decrypt(
     input: ByteArray,
     key: ByteArray,

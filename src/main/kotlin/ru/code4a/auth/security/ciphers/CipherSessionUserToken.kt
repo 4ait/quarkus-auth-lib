@@ -4,9 +4,12 @@ import jakarta.annotation.PostConstruct
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import ru.code4a.auth.encoding.DecoderBase64
+import ru.code4a.auth.security.SecureBytesGeneratorStrong
 import ru.code4a.auth.security.ciphers.aescbc.CipherAESCBCIVMSG
+import ru.code4a.auth.security.ciphers.aesecb.CipherAESECB
 import ru.code4a.auth.security.ciphers.aesgcm.CipherAESGCMIVMSG
 import ru.code4a.auth.security.ciphers.chacha20poly1305.CipherChaCha20Poly1305IVMSG
+import ru.code4a.auth.utils.toByteArray
 import kotlin.math.min
 
 @ApplicationScoped
@@ -14,10 +17,18 @@ class CipherSessionUserToken(
   private val cipherAESGCMIVMSG: CipherAESGCMIVMSG,
   private val cipherAESCBCIVMSG: CipherAESCBCIVMSG,
   private val cipherChaCha20Poly1305IVMSG: CipherChaCha20Poly1305IVMSG,
-  private val decoderBase64: DecoderBase64
+  private val cipherAESECB: CipherAESECB,
+  private val decoderBase64: DecoderBase64,
+  private val secureBytesGeneratorStrong: SecureBytesGeneratorStrong
 ) {
+
   @ConfigProperty(name = "foura.fauth.secret-session-user-token-key-base64")
   private lateinit var secretSessionUserTokenKeyBase64: String
+
+  @ConfigProperty(name = "foura.fauth.secret-session-user-token-id-key-256bit-base64")
+  private lateinit var secretSessionUserTokenIdKey256bitBase64: String
+
+  private lateinit var secretSessionUserTokenIdKey128bitsRounds: ArrayList<ByteArray>
 
   private lateinit var secretKeyBytesRounds: ArrayList<ByteArray>
 
@@ -30,6 +41,14 @@ class CipherSessionUserToken(
     }
 
     secretKeyBytesRounds = divideDataIntoChunks(secretKeyBytes, 32)
+
+    val secretSessionUserTokenIdKeyRounds = decoderBase64.decode(secretSessionUserTokenIdKey256bitBase64)
+
+    if (secretSessionUserTokenIdKeyRounds.size != 32) {
+      throw IllegalArgumentException("Secret Server Session Key Id must be 32 bytes")
+    }
+
+    secretSessionUserTokenIdKey128bitsRounds = divideDataIntoChunks(secretSessionUserTokenIdKeyRounds, 16)
   }
 
   private val ivAESLengthBits = 128
@@ -37,20 +56,38 @@ class CipherSessionUserToken(
 
   private val saltSizeBytes = 1
 
-  fun encrypt(data: ByteArray): ByteArray {
+  fun encrypt(sessionTokenId: Long, data: ByteArray): ByteArray {
+    /**
+     * Prepare iv
+     */
+    val sessionTokenAESECBEncrypted128bitsRound1 =
+      cipherAESECB.encrypt(
+        sessionTokenId.toByteArray() + secureBytesGeneratorStrong.generate(8),
+        secretSessionUserTokenIdKey128bitsRounds[0]
+      )
+
+    val sessionTokenAESECBEncrypted128bitsRound2 =
+      cipherAESECB.encrypt(
+        sessionTokenId.toByteArray() + secureBytesGeneratorStrong.generate(8),
+        secretSessionUserTokenIdKey128bitsRounds[1]
+      )
+
+    /**
+     * Rounds
+     */
     val round1 =
-      cipherAESGCMIVMSG.encrypt(
+      cipherAESGCMIVMSG.encryptWithIV(
         data,
         secretKeyBytesRounds[0],
-        ivLengthBits = ivAESLengthBits,
+        iv = sessionTokenAESECBEncrypted128bitsRound1,
         saltSizeBytes = saltSizeBytes
       )
 
     val round2 =
-      cipherAESCBCIVMSG.encrypt(
+      cipherAESCBCIVMSG.encryptWithIV(
         round1,
         secretKeyBytesRounds[1],
-        ivLengthBits = ivAESLengthBits,
+        iv = sessionTokenAESECBEncrypted128bitsRound2,
         saltSizeBytes = saltSizeBytes
       )
 
