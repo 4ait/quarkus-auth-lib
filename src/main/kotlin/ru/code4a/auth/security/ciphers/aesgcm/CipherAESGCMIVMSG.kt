@@ -36,10 +36,10 @@ class CipherAESGCMIVMSG(
 
     return iv +
       cipherAESGCM.encrypt(
-        salt + input,
-        key,
-        iv,
-        iv.size
+        input = salt + input,
+        key = key,
+        iv = iv,
+        ivLengthBits = iv.size * 8
       )
   }
 
