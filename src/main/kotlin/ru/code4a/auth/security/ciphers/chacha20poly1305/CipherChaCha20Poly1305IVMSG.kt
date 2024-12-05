@@ -8,23 +8,6 @@ class CipherChaCha20Poly1305IVMSG(
   private val cipherChaCha20Poly1305: CipherChaCha20Poly1305,
   private val secureBytesGeneratorStrong: SecureBytesGeneratorStrong
 ) {
-  fun encrypt(
-    input: ByteArray,
-    key: ByteArray,
-    ivLengthBits: Int,
-    saltSizeBytes: Int
-  ): ByteArray {
-    val salt = secureBytesGeneratorStrong.generate(saltSizeBytes)
-    val iv = secureBytesGeneratorStrong.generate(ivLengthBits / 8)
-
-    return iv +
-      cipherChaCha20Poly1305.encrypt(
-        salt + input,
-        key,
-        iv
-      )
-  }
-
   fun encryptWithIv(
     input: ByteArray,
     key: ByteArray,

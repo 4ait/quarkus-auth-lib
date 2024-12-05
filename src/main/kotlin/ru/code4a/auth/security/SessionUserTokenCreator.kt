@@ -34,10 +34,7 @@ class SessionUserTokenCreator(
         .array()
 
     val sessionUserTokenBytes =
-      cipherSessionUserToken.encrypt(
-        sessionTokenId = userSessionTokenId,
-        data = packedSessionUserPrivateToken
-      )
+      cipherSessionUserToken.encrypt(packedSessionUserPrivateToken)
 
     return encoderBase64.encode(sessionUserTokenBytes)
   }
