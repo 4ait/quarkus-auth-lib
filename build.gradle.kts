@@ -86,7 +86,7 @@ tasks.withType<Test> {
 }
 
 dependencies {
-  implementation("io.quarkus:quarkus-arc:3.12.0")
+  implementation("io.quarkus:quarkus-arc:3.17.3")
   // implementation("jakarta.enterprise:jakarta.enterprise.cdi-api:4.1.0")
   // implementation("org.eclipse.microprofile.config:microprofile-config-api:3.1")
 
