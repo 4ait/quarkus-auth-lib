@@ -5,12 +5,5 @@ import java.util.Base64
 
 @ApplicationScoped
 class DecoderBase64 {
-  companion object {
-    private val decoder =
-      ThreadLocal.withInitial {
-        Base64.getDecoder()
-      }
-  }
-
-  fun decode(input: String): ByteArray = decoder.get().decode(input)
+  fun decode(input: String): ByteArray = Base64.getDecoder().decode(input)
 }

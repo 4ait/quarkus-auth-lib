@@ -2,19 +2,11 @@ package ru.code4a.auth.security.ciphers.aesecb
 
 import jakarta.enterprise.context.ApplicationScoped
 import javax.crypto.Cipher
-import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 // https://web.cs.ucdavis.edu/~rogaway/ocb/gcm.pdf
 @ApplicationScoped
 class CipherAESECB {
-  companion object {
-    private val cipher =
-      ThreadLocal.withInitial {
-        Cipher.getInstance("AES/ECB/NoPadding")
-      }
-  }
-
   /**
    * Input 128 bits key and block
    */
@@ -22,7 +14,7 @@ class CipherAESECB {
     input: ByteArray,
     key: ByteArray
   ): ByteArray {
-    val cipher = cipher.get()
+    val cipher = getCipher()
     val secretKeySpec = SecretKeySpec(key, "AES")
 
     cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
@@ -37,11 +29,15 @@ class CipherAESECB {
     input: ByteArray,
     key: ByteArray
   ): ByteArray {
-    val cipher = cipher.get()
+    val cipher = getCipher()
     val secretKeySpec = SecretKeySpec(key, "AES")
 
     cipher.init(Cipher.DECRYPT_MODE, secretKeySpec)
 
     return cipher.doFinal(input)
+  }
+
+  private fun getCipher(): Cipher {
+    return Cipher.getInstance("AES/ECB/NoPadding")
   }
 }

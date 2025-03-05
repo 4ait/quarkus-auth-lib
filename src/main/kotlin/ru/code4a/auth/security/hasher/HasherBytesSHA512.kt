@@ -5,18 +5,11 @@ import java.security.MessageDigest
 
 @ApplicationScoped
 class HasherBytesSHA512 : HasherBytes {
-  companion object {
-    private val hasher =
-      ThreadLocal.withInitial {
-        MessageDigest.getInstance("SHA-512")
-      }
-  }
-
   override fun hash(
     input: ByteArray,
     salt: ByteArray
   ): ByteArray {
-    val digest = hasher.get()
+    val digest = MessageDigest.getInstance("SHA-512")
     val output = digest.digest(input)
     digest.update(salt)
     digest.update(output)

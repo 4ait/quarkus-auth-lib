@@ -5,14 +5,11 @@ import java.security.SecureRandom
 
 @ApplicationScoped
 class SecureBytesGeneratorStrong {
-  private val secureRandom =
-    ThreadLocal.withInitial {
-      SecureRandom.getInstanceStrong()
-    }
+  private val secureRandom = SecureRandom.getInstanceStrong()
 
   fun generate(lengthBytes: Int): ByteArray {
     val byteArray = ByteArray(lengthBytes)
-    secureRandom.get().nextBytes(byteArray)
+    secureRandom.nextBytes(byteArray)
 
     return byteArray
   }

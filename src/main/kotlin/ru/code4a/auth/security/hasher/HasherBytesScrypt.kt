@@ -7,6 +7,8 @@ import com.lambdaworks.crypto.SCrypt
  * Calls the native implementation {@link #scryptN} when the native library was successfully
  * loaded, otherwise calls {@link #scryptJ}.
  *
+ * This class is thread-safe as it is immutable and has no shared mutable state.
+ *
  * @param passwd    Password.
  * @param salt      Salt.
  * @param N         CPU cost parameter.

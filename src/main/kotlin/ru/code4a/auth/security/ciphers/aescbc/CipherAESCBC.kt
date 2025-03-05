@@ -7,19 +7,12 @@ import javax.crypto.spec.SecretKeySpec
 
 @ApplicationScoped
 class CipherAESCBC {
-  companion object {
-    private val cipher =
-      ThreadLocal.withInitial {
-        Cipher.getInstance("AES/CBC/PKCS5Padding")
-      }
-  }
-
   fun encrypt(
     input: ByteArray,
     key: ByteArray,
     iv: ByteArray
   ): ByteArray {
-    val cipher = cipher.get()
+    val cipher = getCipher()
     val ivSpec = IvParameterSpec(iv)
     val secretKeySpec = SecretKeySpec(key, "AES")
 
@@ -33,12 +26,16 @@ class CipherAESCBC {
     key: ByteArray,
     iv: ByteArray
   ): ByteArray {
-    val cipher = cipher.get()
+    val cipher = getCipher()
     val gcmSpec = IvParameterSpec(iv)
     val secretKeySpec = SecretKeySpec(key, "AES")
 
     cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, gcmSpec)
 
     return cipher.doFinal(input)
+  }
+
+  private fun getCipher(): Cipher {
+    return Cipher.getInstance("AES/CBC/PKCS5Padding")
   }
 }

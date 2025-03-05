@@ -6,15 +6,10 @@ import jakarta.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class HasherBytesScryptWithRecommendedParamsForAuth : HasherBytes {
-  companion object {
-    private val hasher =
-      ThreadLocal.withInitial {
-        HasherBytesScrypt(16384, 8, 1, 512)
-      }
-  }
+  private val hasher = HasherBytesScrypt(16384, 8, 1, 512)
 
   override fun hash(
     input: ByteArray,
     salt: ByteArray
-  ): ByteArray = hasher.get().hash(input, salt)
+  ): ByteArray = hasher.hash(input, salt)
 }
