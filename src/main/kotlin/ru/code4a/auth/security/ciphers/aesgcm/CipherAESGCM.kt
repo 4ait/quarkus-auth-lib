@@ -8,20 +8,13 @@ import javax.crypto.spec.SecretKeySpec
 // https://web.cs.ucdavis.edu/~rogaway/ocb/gcm.pdf
 @ApplicationScoped
 class CipherAESGCM {
-  companion object {
-    private val cipher =
-      ThreadLocal.withInitial {
-        Cipher.getInstance("AES/GCM/NoPadding")
-      }
-  }
-
   fun encrypt(
     input: ByteArray,
     key: ByteArray,
     iv: ByteArray,
     ivLengthBits: Int
   ): ByteArray {
-    val cipher = cipher.get()
+    val cipher = getCipher()
     val ivSpec = GCMParameterSpec(ivLengthBits, iv)
     val secretKeySpec = SecretKeySpec(key, "AES")
 
@@ -36,12 +29,16 @@ class CipherAESGCM {
     iv: ByteArray,
     ivLengthBits: Int
   ): ByteArray {
-    val cipher = cipher.get()
+    val cipher = getCipher()
     val gcmSpec = GCMParameterSpec(ivLengthBits, iv)
     val secretKeySpec = SecretKeySpec(key, "AES")
 
     cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, gcmSpec)
 
     return cipher.doFinal(input)
+  }
+
+  private fun getCipher(): Cipher {
+    return Cipher.getInstance("AES/GCM/NoPadding")
   }
 }

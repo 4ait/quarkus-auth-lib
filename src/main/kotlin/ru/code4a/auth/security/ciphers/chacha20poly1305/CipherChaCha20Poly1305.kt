@@ -8,19 +8,12 @@ import javax.crypto.spec.SecretKeySpec
 // https://web.cs.ucdavis.edu/~rogaway/ocb/gcm.pdf
 @ApplicationScoped
 class CipherChaCha20Poly1305 {
-  companion object {
-    private val cipher =
-      ThreadLocal.withInitial {
-        Cipher.getInstance("ChaCha20-Poly1305")
-      }
-  }
-
   fun encrypt(
     input: ByteArray,
     key: ByteArray,
     iv: ByteArray
   ): ByteArray {
-    val cipher = cipher.get()
+    val cipher = getCipher()
     val ivSpec = IvParameterSpec(iv)
     val secretKeySpec = SecretKeySpec(key, "ChaCha20")
 
@@ -34,7 +27,7 @@ class CipherChaCha20Poly1305 {
     key: ByteArray,
     iv: ByteArray
   ): ByteArray {
-    val cipher = cipher.get()
+    val cipher = getCipher()
     val gcmSpec = IvParameterSpec(iv)
     val secretKeySpec = SecretKeySpec(key, "ChaCha20")
 
@@ -42,4 +35,6 @@ class CipherChaCha20Poly1305 {
 
     return cipher.doFinal(input)
   }
+
+  private fun getCipher(): Cipher = Cipher.getInstance("ChaCha20-Poly1305")
 }
