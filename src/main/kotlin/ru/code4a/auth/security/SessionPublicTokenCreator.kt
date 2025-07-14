@@ -4,12 +4,12 @@ import jakarta.annotation.PostConstruct
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import ru.code4a.auth.encoding.EncoderBase64
-import ru.code4a.auth.security.hasher.HasherBytesSHA3512
+import ru.code4a.auth.security.hasher.HasherBytesSHA512
 
 @ApplicationScoped
 class SessionPublicTokenCreator(
   private val encoderBase64: EncoderBase64,
-  private val sha512: HasherBytesSHA3512
+  private val sha512: HasherBytesSHA512
 ) {
   @ConfigProperty(name = "foura.fauth.private-session-token-salt")
   private lateinit var privateSessionTokenSaltRaw: String

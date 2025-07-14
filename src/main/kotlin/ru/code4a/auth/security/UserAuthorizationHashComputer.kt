@@ -3,13 +3,13 @@ package ru.code4a.auth.security
 import jakarta.annotation.PostConstruct
 import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.config.inject.ConfigProperty
-import ru.code4a.auth.security.hasher.HasherBytesSHA3512
+import ru.code4a.auth.security.hasher.HasherBytesSHA512
 import ru.code4a.auth.security.hasher.HasherBytesScryptWithRecommendedParamsForAuth
 
 @ApplicationScoped
 class UserAuthorizationHashComputer(
   private val scrypt: HasherBytesScryptWithRecommendedParamsForAuth,
-  private val sha512: HasherBytesSHA3512
+  private val sha512: HasherBytesSHA512
 ) {
   @ConfigProperty(name = "foura.fauth.authorization-hash-salt")
   private lateinit var authorizationHashSalt: String
