@@ -4,12 +4,12 @@ import jakarta.enterprise.context.ApplicationScoped
 import java.security.MessageDigest
 
 @ApplicationScoped
-class HasherBytesSHA512 : HasherBytes {
+class HasherBytesSHA3512 : HasherBytes {
   override fun hash(
     input: ByteArray,
     salt: ByteArray
   ): ByteArray {
-    val digest = MessageDigest.getInstance("SHA-512")
+    val digest = MessageDigest.getInstance("SHA3-512")
     val output = digest.digest(input)
     digest.update(salt)
     digest.update(output)

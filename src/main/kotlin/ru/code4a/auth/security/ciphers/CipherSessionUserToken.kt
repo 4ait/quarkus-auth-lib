@@ -32,9 +32,7 @@ class CipherSessionUserToken(
   protected fun init() {
     val secretKeyBytes = decoderBase64.decode(secretSessionUserTokenKeyBase64)
 
-    if (secretKeyBytes.size != 96) {
-      throw IllegalArgumentException("Secret Server Session Key must be 96 bytes")
-    }
+    require(secretKeyBytes.size == 96) { "Secret Server Session Key must be 96 bytes" }
 
     secretKeyBytesRounds = divideDataIntoChunks(secretKeyBytes, 32)
   }
