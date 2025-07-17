@@ -1,10 +1,13 @@
-package ru.code4a.auth.security.hasher
+package ru.code4a.auth.security.hasher.base
 
+import io.quarkus.arc.properties.IfBuildProperty
 import jakarta.enterprise.context.ApplicationScoped
+import ru.code4a.auth.security.hasher.HasherBytes
 import java.security.MessageDigest
 
 @ApplicationScoped
-class HasherBytesSHA512 : HasherBytes {
+@IfBuildProperty( name = "foura.fauth.base-hash-alg", stringValue = "SHA-512", enableIfMissing = true)
+class HasherBytesSHA512 : HasherBytes, BaseAuthHasherBytes {
   override fun hash(
     input: ByteArray,
     salt: ByteArray
