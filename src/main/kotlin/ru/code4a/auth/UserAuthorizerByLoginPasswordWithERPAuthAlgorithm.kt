@@ -46,7 +46,8 @@ class UserAuthorizerByLoginPasswordWithERPAuthAlgorithm(
     userSessionTokenNewIdGetter: UserSessionTokenNewIdGetter,
     userSessionStorageWriter: UserSessionStorageWriter,
     login: String,
-    password: String
+    password: String,
+    overrideValidPeriod: Duration? = null,
   ): OkOrError<AuthorizeData, AuthorizeUserError> {
     try {
       val userResult = userByLoginGetter.get(login)
@@ -78,7 +79,7 @@ class UserAuthorizerByLoginPasswordWithERPAuthAlgorithm(
           userSessionTokenNewIdGetter = userSessionTokenNewIdGetter,
           userSessionStorageWriter = userSessionStorageWriter,
           authorizedAt = authorizedAt,
-          validUntil = authorizedAt + Duration.ofMinutes(minutesTokenValid)
+          validUntil = authorizedAt + (overrideValidPeriod ?: Duration.ofMinutes(minutesTokenValid))
         )
 
       return asOk(

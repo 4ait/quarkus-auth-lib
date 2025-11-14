@@ -42,7 +42,8 @@ class SessionRequestNewAccessTokenWithERPAuthAlgorithm(
     userSessionTokenNewIdGetter: UserSessionTokenNewIdGetter,
     userAccessTokenWriter: UserAccessTokenWriter,
     userSessionId: Long,
-    sessionUserTokenBase64: String
+    sessionUserTokenBase64: String,
+    overrideValidPeriod: Duration? = null,
   ): NewAccessTokenData {
     val sessionUserTokenData = sessionUserTokenCreator.unpackBase64Token(sessionUserTokenBase64)
 
@@ -59,7 +60,7 @@ class SessionRequestNewAccessTokenWithERPAuthAlgorithm(
       val newSessionPublicTokenBase64 =
         sessionPublicTokenCreator.createBase64Token(newSessionPrivateTokenBytes)
 
-      val newValidUntil = Instant.now() + Duration.ofMinutes(minutesTokenValid)
+      val newValidUntil = Instant.now() + (overrideValidPeriod ?: Duration.ofMinutes(minutesTokenValid))
 
       userAccessTokenWriter.write(
         userSessionId = userSessionId,
