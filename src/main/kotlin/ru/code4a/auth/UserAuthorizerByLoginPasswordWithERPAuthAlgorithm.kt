@@ -59,15 +59,15 @@ class UserAuthorizerByLoginPasswordWithERPAuthAlgorithm(
         }
 
       val authorizationSalt = decoderBase64.decode(user.authorizationSaltBase64)
-      val authorizationHash = decoderBase64.decode(user.authorizationHashBase64)
 
-      val userAuthorizationHash =
-        userAuthorizationHashComputer.computeHash(
-          password.toByteArray(),
-          authorizationSalt
+      val isHashValid =
+        userAuthorizationHashComputer.verifyHashBase64(
+          expectedHashBase64 = user.authorizationHashBase64,
+          password = password.toByteArray(),
+          authorizationSalt = authorizationSalt
         )
 
-      if (!authorizationHash.contentEquals(userAuthorizationHash)) {
+      if (!isHashValid) {
         return Error(AuthorizeUserError.UserNotAuthorized)
       }
 

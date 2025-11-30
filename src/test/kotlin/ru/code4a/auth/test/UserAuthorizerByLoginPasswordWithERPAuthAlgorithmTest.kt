@@ -56,13 +56,16 @@ class UserAuthorizerByLoginPasswordWithERPAuthAlgorithmTest {
     val saltBase64 = "salt"
     val hashBase64 = "hash"
     val salt = byteArrayOf(1, 2, 3)
-    val hash = byteArrayOf(4, 5, 6)
-    val computedHash = byteArrayOf(4, 5, 6)
 
     `when`(userByLoginGetter.get(login)).thenReturn(Ok(UserData(userId, hashBase64, saltBase64)))
     `when`(decoderBase64.decode(saltBase64)).thenReturn(salt)
-    `when`(decoderBase64.decode(hashBase64)).thenReturn(hash)
-    `when`(userAuthorizationHashComputer.computeHash(password.toByteArray(), salt)).thenReturn(computedHash)
+    `when`(
+      userAuthorizationHashComputer.verifyHashBase64(
+        expectedHashBase64 = hashBase64,
+        password = password.toByteArray(),
+        authorizationSalt = salt
+      )
+    ).thenReturn(true)
 
     `when`(sessionCreator.createSession(any(), any(), eq(userId), any(), any())).thenReturn(
       object : SessionPublicTokenGeneratorResult {
@@ -125,13 +128,16 @@ class UserAuthorizerByLoginPasswordWithERPAuthAlgorithmTest {
     val saltBase64 = "salt"
     val hashBase64 = "hash"
     val salt = byteArrayOf(1, 2, 3)
-    val hash = byteArrayOf(4, 5, 6)
-    val computedHash = byteArrayOf(7, 8, 9) // Different hash
 
     `when`(userByLoginGetter.get(login)).thenReturn(Ok(UserData(userId, hashBase64, saltBase64)))
     `when`(decoderBase64.decode(saltBase64)).thenReturn(salt)
-    `when`(decoderBase64.decode(hashBase64)).thenReturn(hash)
-    `when`(userAuthorizationHashComputer.computeHash(password.toByteArray(), salt)).thenReturn(computedHash)
+    `when`(
+      userAuthorizationHashComputer.verifyHashBase64(
+        expectedHashBase64 = hashBase64,
+        password = password.toByteArray(),
+        authorizationSalt = salt
+      )
+    ).thenReturn(false)
 
     val result =
       userAuthorizer.authorizeUserByLoginPassword(

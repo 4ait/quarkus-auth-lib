@@ -19,14 +19,14 @@ class AuthorizationDataUserCreator(
   fun compute(password: String): AuthorizationData {
     val authorizationSaltBytes = secureBytesGeneratorStrong.generate(128 / 8)
 
-    val userAuthorizationHashBytes =
-      userAuthorizationHashComputer.computeHash(
+    val userAuthorizationHashBase64 =
+      userAuthorizationHashComputer.computeHashBase64(
         password.toByteArray(),
         authorizationSaltBytes
       )
 
     return AuthorizationData(
-      userAuthorizationHashBase64 = encoderBase64.encode(userAuthorizationHashBytes),
+      userAuthorizationHashBase64 = userAuthorizationHashBase64,
       authorizationSaltBase64 = encoderBase64.encode(authorizationSaltBytes)
     )
   }

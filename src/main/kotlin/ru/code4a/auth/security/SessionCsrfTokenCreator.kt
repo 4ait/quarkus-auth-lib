@@ -1,22 +1,33 @@
 package ru.code4a.auth.security
 
 import jakarta.enterprise.context.ApplicationScoped
-import ru.code4a.auth.encoding.EncoderBase64
-import ru.code4a.auth.security.hasher.base.BaseAuthHasherBytes
+import ru.code4a.auth.security.hasher.PrefixedSaltedHasherSelector
+import ru.code4a.auth.security.hasher.deprecated.BaseAuthHasherBytes
 
 @ApplicationScoped
 class SessionCsrfTokenCreator(
-  private val encoderBase64: EncoderBase64,
-  private val baseAuthHasherBytes: BaseAuthHasherBytes
+  private val baseAuthHasherBytes: BaseAuthHasherBytes,
+  private val prefixedSaltedHasherSelector: PrefixedSaltedHasherSelector
 ) {
   fun createBase64Token(
     privateCsrfToken: ByteArray,
     salt: ByteArray
   ): String =
-    encoderBase64.encode(
-      baseAuthHasherBytes.hash(
-        privateCsrfToken,
-        salt
-      )
+    prefixedSaltedHasherSelector.hashWithPossiblePrefix(
+      input = privateCsrfToken,
+      salt = salt,
+      fallback = { baseAuthHasherBytes.hash(privateCsrfToken, salt) }
+    )
+
+  fun verifyBase64Token(
+    expectedCsrfTokenBase64: String,
+    privateCsrfToken: ByteArray,
+    salt: ByteArray
+  ): Boolean =
+    prefixedSaltedHasherSelector.verifyHash(
+      expectedHashBase64 = expectedCsrfTokenBase64,
+      input = privateCsrfToken,
+      salt = salt,
+      fallback = { baseAuthHasherBytes.hash(privateCsrfToken, salt) }
     )
 }

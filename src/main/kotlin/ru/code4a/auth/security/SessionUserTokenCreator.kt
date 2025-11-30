@@ -1,17 +1,13 @@
 package ru.code4a.auth.security
 
 import jakarta.enterprise.context.ApplicationScoped
-import ru.code4a.auth.encoding.DecoderBase64
-import ru.code4a.auth.encoding.EncoderBase64
-import ru.code4a.auth.security.ciphers.CipherSessionUserToken
+import ru.code4a.auth.security.ciphers.PrefixedCipherSelector
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 @ApplicationScoped
 class SessionUserTokenCreator(
-  private val cipherSessionUserToken: CipherSessionUserToken,
-  private val encoderBase64: EncoderBase64,
-  private val decoderBase64: DecoderBase64
+  private val prefixedCipherSelector: PrefixedCipherSelector
 ) {
   data class TokenData(
     val userSessionTokenId: Long,
@@ -33,16 +29,11 @@ class SessionUserTokenCreator(
         .order(ByteOrder.BIG_ENDIAN)
         .array()
 
-    val sessionUserTokenBytes =
-      cipherSessionUserToken.encrypt(packedSessionUserPrivateToken)
-
-    return encoderBase64.encode(sessionUserTokenBytes)
+    return prefixedCipherSelector.encryptWithPossiblePrefix(packedSessionUserPrivateToken)
   }
 
   fun unpackBase64Token(token: String): TokenData {
-    val encryptedBytes = decoderBase64.decode(token)
-
-    val bytes = cipherSessionUserToken.decrypt(encryptedBytes)
+    val bytes = prefixedCipherSelector.decryptWithPossiblePrefix(token)
 
     return TokenData(
       userSessionTokenId = ByteBuffer.wrap(bytes, 0, 8).order(ByteOrder.BIG_ENDIAN).getLong(),

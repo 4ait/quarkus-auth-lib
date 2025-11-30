@@ -4,7 +4,7 @@ This library provides a robust authorization system for Quarkus applications, im
 
 # Versions
 
-* 0.1.0+ Required Quarkus 3.12.0+
+* 0.10.0+ Required Quarkus 3.29.3+
 
 # Features
 
@@ -13,6 +13,7 @@ This library provides a robust authorization system for Quarkus applications, im
 * CSRF token protection
 * Access token generation and renewal
 * Configurable token expiration
+* Pluggable crypto: custom prefixed cipher, salted hashers for tokens, and a dedicated password hasher
 
 # Installation
 
@@ -28,12 +29,16 @@ Add the following dependency to your `pom.xml`:
 
 # Configuration
 
-Add the following configuration properties to your `application.properties`:
+Minimal required configuration:
 
 ```properties
 # Token validity period in minutes
 foura.fauth.minutes-token-valid=60
+```
 
+Legacy-only (needed **only** if you rely on deprecated built-in crypto instead of providing custom providers):
+
+```properties
 # Base64 encoded secret key for session user tokens (96 bytes)
 foura.fauth.secret-session-user-token-key-base64=<your_base64_encoded_secret_key>
 
@@ -43,6 +48,18 @@ foura.fauth.private-session-token-salt=<your_private_session_token_salt>
 # Base64 encoded salt for password hash
 foura.fauth.authorization-hash-salt=<authorization_hash_salt>
 ```
+
+These secrets are loaded lazily at runtime and are unused when custom prefixed providers are present.
+
+# Extending crypto
+
+All crypto outputs can be prefixed (`<prefix>:<base64>`) so the library can route to the correct implementation at runtime.
+
+- Implement `AuthPrefixedCipher` for encrypting/decrypting session user tokens. The `isPrimary` implementation will be used for encryption; decryption uses the prefix in the payload.
+- Implement `AuthPrefixedSaltedHasher` for hashing/verifying session public tokens and CSRF tokens. The `isPrimary` implementation is used for new hashes.
+- Implement `AuthPrefixedPasswordHasher` for hashing/verifying user passwords. The `isPrimary` implementation is used for new password hashes.
+- If no matching implementation is found, the library falls back to built-in algorithms located in `ru.code4a.auth.security.hasher.deprecated.*`.
+- Prefixed values are encoded with URL-safe Base64 (no padding). Legacy/fallback values keep the existing Base64 alphabet.
 
 # Key Components
 

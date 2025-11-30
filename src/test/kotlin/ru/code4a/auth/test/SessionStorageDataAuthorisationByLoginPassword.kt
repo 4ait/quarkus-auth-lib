@@ -3,7 +3,7 @@ package ru.code4a.auth.test
 import org.junit.jupiter.api.Test
 import ru.code4a.auth.encoding.DecoderBase64
 import ru.code4a.auth.encoding.EncoderBase64
-import ru.code4a.auth.security.hasher.HasherBytesScryptWithRecommendedParamsForAuth
+import ru.code4a.auth.security.hasher.deprecated.HasherBytesScryptWithRecommendedParamsForAuth
 
 class SessionStorageDataAuthorisationByLoginPassword {
   @Test

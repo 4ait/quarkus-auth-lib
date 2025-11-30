@@ -1,35 +1,69 @@
 package ru.code4a.auth.security
 
-import jakarta.annotation.PostConstruct
 import jakarta.enterprise.context.ApplicationScoped
-import org.eclipse.microprofile.config.inject.ConfigProperty
-import ru.code4a.auth.encoding.EncoderBase64
-import ru.code4a.auth.security.hasher.base.BaseAuthHasherBytes
+import org.eclipse.microprofile.config.ConfigProvider
+import ru.code4a.auth.security.hasher.PrefixedSaltedHasherSelector
+import ru.code4a.auth.security.hasher.deprecated.BaseAuthHasherBytes
 
 @ApplicationScoped
 class SessionPublicTokenCreator(
-  private val encoderBase64: EncoderBase64,
-  private val baseAuthHasherBytes: BaseAuthHasherBytes
+  private val baseAuthHasherBytes: BaseAuthHasherBytes,
+  private val prefixedSaltedHasherSelector: PrefixedSaltedHasherSelector
 ) {
-  @ConfigProperty(name = "foura.fauth.private-session-token-salt")
-  private lateinit var privateSessionTokenSaltRaw: String
-
-  private lateinit var privateSessionTokenSalt: ByteArray
-
-  @PostConstruct
-  protected fun init() {
-    privateSessionTokenSalt = privateSessionTokenSaltRaw.toByteArray()
-  }
+  private var privateSessionTokenSalt: ByteArray? = null
 
   fun createBase64Token(sessionPrivateTokenBytes: ByteArray): String {
-    val privateSessionTokenSaltBytes = privateSessionTokenSalt
+    val privateSessionTokenSaltBytes = getPrivateSessionTokenSalt()
 
-    val sessionPublicTokenBytes =
-      baseAuthHasherBytes.hash(
-        sessionPrivateTokenBytes,
-        privateSessionTokenSaltBytes
-      )
+    return prefixedSaltedHasherSelector.hashWithPossiblePrefix(
+      input = sessionPrivateTokenBytes,
+      salt = privateSessionTokenSaltBytes,
+      fallback = {
+        baseAuthHasherBytes.hash(
+          sessionPrivateTokenBytes,
+          privateSessionTokenSaltBytes
+        )
+      }
+    )
+  }
 
-    return encoderBase64.encode(sessionPublicTokenBytes)
+  fun verifyBase64Token(
+    expectedSessionPublicTokenBase64: String,
+    sessionPrivateTokenBytes: ByteArray
+  ): Boolean {
+    val privateSessionTokenSaltBytes = getPrivateSessionTokenSalt()
+
+    return prefixedSaltedHasherSelector.verifyHash(
+      expectedHashBase64 = expectedSessionPublicTokenBase64,
+      input = sessionPrivateTokenBytes,
+      salt = privateSessionTokenSaltBytes,
+      fallback = {
+        baseAuthHasherBytes.hash(
+          sessionPrivateTokenBytes,
+          privateSessionTokenSaltBytes
+        )
+      }
+    )
+  }
+
+  private fun getPrivateSessionTokenSalt(): ByteArray {
+    val cachedSalt = privateSessionTokenSalt
+    if (cachedSalt != null) {
+      return cachedSalt
+    }
+
+    val salt =
+      ConfigProvider.getConfig()
+        .getOptionalValue("foura.fauth.private-session-token-salt", String::class.java)
+        .orElseThrow {
+          IllegalStateException(
+            "Property foura.fauth.private-session-token-salt is required when using the built-in session public token hasher"
+          )
+        }
+        .toByteArray()
+
+    privateSessionTokenSalt = salt
+
+    return salt
   }
 }

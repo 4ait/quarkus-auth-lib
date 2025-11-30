@@ -33,14 +33,12 @@ class AuthorizationDataUserCreatorTest {
   fun testCompute() {
     val password = "testPassword"
     val salt = byteArrayOf(1, 2, 3)
-    val hash = byteArrayOf(4, 5, 6)
     val saltBase64 = "saltBase64"
     val hashBase64 = "hashBase64"
 
     `when`(secureBytesGeneratorStrong.generate(16)).thenReturn(salt)
-    `when`(userAuthorizationHashComputer.computeHash(password.toByteArray(), salt)).thenReturn(hash)
+    `when`(userAuthorizationHashComputer.computeHashBase64(password.toByteArray(), salt)).thenReturn(hashBase64)
     `when`(encoderBase64.encode(salt)).thenReturn(saltBase64)
-    `when`(encoderBase64.encode(hash)).thenReturn(hashBase64)
 
     val result = authorizationDataUserCreator.compute(password)
 
@@ -48,8 +46,7 @@ class AuthorizationDataUserCreatorTest {
     assertEquals(saltBase64, result.authorizationSaltBase64)
 
     verify(secureBytesGeneratorStrong).generate(16)
-    verify(userAuthorizationHashComputer).computeHash(password.toByteArray(), salt)
+    verify(userAuthorizationHashComputer).computeHashBase64(password.toByteArray(), salt)
     verify(encoderBase64).encode(salt)
-    verify(encoderBase64).encode(hash)
   }
 }

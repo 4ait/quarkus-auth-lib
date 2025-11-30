@@ -5,9 +5,9 @@ import java.security.SecureRandom
 
 @ApplicationScoped
 class SecureBytesGeneratorStrong {
-  private val secureRandom = SecureRandom.getInstanceStrong()
-
   fun generate(lengthBytes: Int): ByteArray {
+    val secureRandom = SecureRandom.getInstanceStrong()
+
     val byteArray = ByteArray(lengthBytes)
     secureRandom.nextBytes(byteArray)
 

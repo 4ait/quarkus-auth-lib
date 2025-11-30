@@ -77,8 +77,12 @@ class SessionAuthorizerBySessionUserTokenWithERPAuthAlgorithmTest {
         )
       )
     )
-    `when`(sessionPublicTokenCreator.createBase64Token(sessionUserTokenData.sessionPrivateTokenBytes))
-      .thenReturn(sessionPublicTokenBase64)
+    `when`(
+      sessionPublicTokenCreator.verifyBase64Token(
+        sessionPublicTokenBase64,
+        sessionUserTokenData.sessionPrivateTokenBytes
+      )
+    ).thenReturn(true)
 
     `when`(base64.decode(sessionCsrfTokenSaltBase64)).thenReturn(sessionCsrfTokenSaltByteArray)
 
@@ -211,8 +215,12 @@ class SessionAuthorizerBySessionUserTokenWithERPAuthAlgorithmTest {
         )
       )
     )
-    `when`(sessionPublicTokenCreator.createBase64Token(sessionUserTokenData.sessionPrivateTokenBytes))
-      .thenReturn(sessionPublicTokenBase64)
+    `when`(
+      sessionPublicTokenCreator.verifyBase64Token(
+        sessionPublicTokenBase64,
+        sessionUserTokenData.sessionPrivateTokenBytes
+      )
+    ).thenReturn(true)
     `when`(sessionCsrfTokenCreator.createBase64Token(any(), any())).thenReturn("validCsrfToken")
 
     val result =

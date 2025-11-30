@@ -4,8 +4,8 @@ group = "ru.code4a"
 version = file("version").readText().trim()
 
 plugins {
-  kotlin("jvm") version "2.0.21"
-  kotlin("plugin.serialization") version "2.0.21"
+  kotlin("jvm") version "2.2.21"
+  kotlin("plugin.serialization") version "2.2.21"
 
   id("org.kordamp.gradle.jandex") version "1.0.0"
 
@@ -86,7 +86,7 @@ tasks.withType<Test> {
 }
 
 dependencies {
-  implementation("io.quarkus:quarkus-arc:3.19.1")
+  implementation("io.quarkus:quarkus-arc:3.29.3")
 
   implementation("com.lambdaworks:scrypt:1.4.0")
   implementation("ru.code4a:error-handling:1.0.0")

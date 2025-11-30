@@ -91,10 +91,13 @@ class SessionAuthorizerBySessionUserTokenWithERPAuthAlgorithm(
             )
           }
 
-          val sessionPublicTokenBase64 =
-            sessionPublicTokenCreator.createBase64Token(sessionUserTokenData.sessionPrivateTokenBytes)
+          val isSessionPublicTokenValid =
+            sessionPublicTokenCreator.verifyBase64Token(
+              userSessionStorageData.value.sessionPublicTokenBase64,
+              sessionUserTokenData.sessionPrivateTokenBytes
+            )
 
-          if (userSessionStorageData.value.sessionPublicTokenBase64 != sessionPublicTokenBase64) {
+          if (!isSessionPublicTokenValid) {
             return Error(AuthorizeSessionError.SessionNotAuthorized)
           }
 

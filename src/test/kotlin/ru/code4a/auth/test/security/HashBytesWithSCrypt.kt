@@ -3,7 +3,7 @@ package ru.code4a.auth.test.security
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import ru.code4a.auth.security.SecureBytesGeneratorStrong
-import ru.code4a.auth.security.hasher.HasherBytesScryptWithRecommendedParamsForAuth
+import ru.code4a.auth.security.hasher.deprecated.HasherBytesScryptWithRecommendedParamsForAuth
 
 class HashBytesWithSCrypt {
   @Test
