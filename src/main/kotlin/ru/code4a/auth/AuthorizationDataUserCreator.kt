@@ -21,7 +21,7 @@ class AuthorizationDataUserCreator(
 
     val userAuthorizationHashBase64 =
       userAuthorizationHashComputer.computeHashBase64(
-        password.toByteArray(),
+        password,
         authorizationSaltBytes
       )
 

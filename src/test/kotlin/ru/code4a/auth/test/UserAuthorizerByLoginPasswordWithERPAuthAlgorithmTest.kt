@@ -62,7 +62,7 @@ class UserAuthorizerByLoginPasswordWithERPAuthAlgorithmTest {
     `when`(
       userAuthorizationHashComputer.verifyHashBase64(
         expectedHashBase64 = hashBase64,
-        password = password.toByteArray(),
+        password = password,
         authorizationSalt = salt
       )
     ).thenReturn(true)
@@ -134,7 +134,7 @@ class UserAuthorizerByLoginPasswordWithERPAuthAlgorithmTest {
     `when`(
       userAuthorizationHashComputer.verifyHashBase64(
         expectedHashBase64 = hashBase64,
-        password = password.toByteArray(),
+        password = password,
         authorizationSalt = salt
       )
     ).thenReturn(false)

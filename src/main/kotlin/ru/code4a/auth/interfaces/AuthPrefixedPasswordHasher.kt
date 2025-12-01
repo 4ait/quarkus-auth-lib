@@ -9,11 +9,21 @@ package ru.code4a.auth.interfaces
 interface AuthPrefixedPasswordHasher {
   val prefix: String
 
-  val isPrimary: Boolean
+ val isPrimary: Boolean
     get() = false
 
   fun hash(
-    password: ByteArray,
+    password: String,
     salt: ByteArray
   ): ByteArray
+
+  fun matches(
+    hash: ByteArray,
+    password: String,
+    salt: ByteArray
+  ): Boolean =
+    java.security.MessageDigest.isEqual(
+      hash,
+      this.hash(password, salt)
+    )
 }

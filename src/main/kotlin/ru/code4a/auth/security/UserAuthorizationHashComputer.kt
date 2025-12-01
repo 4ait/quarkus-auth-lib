@@ -16,23 +16,20 @@ class UserAuthorizationHashComputer(
   private var applicationAuthorizationPasswordSaltRound2: ByteArray? = null
 
   fun computeHashBase64(
-    password: ByteArray,
+    password: String,
     authorizationSalt: ByteArray
   ): String =
     prefixedPasswordHasherSelector.hashWithPossiblePrefix(
       password = password,
       salt = authorizationSalt,
       fallback = {
-        computeFallbackHash(
-          password,
-          authorizationSalt
-        )
+        computeFallbackHash(it, authorizationSalt)
       }
     )
 
   fun verifyHashBase64(
     expectedHashBase64: String,
-    password: ByteArray,
+    password: String,
     authorizationSalt: ByteArray
   ): Boolean =
     prefixedPasswordHasherSelector.verifyHash(
@@ -40,10 +37,7 @@ class UserAuthorizationHashComputer(
       password = password,
       salt = authorizationSalt,
       fallback = {
-        computeFallbackHash(
-          password,
-          authorizationSalt
-        )
+        computeFallbackHash(it, authorizationSalt)
       }
     )
 

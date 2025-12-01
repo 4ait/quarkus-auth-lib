@@ -19,10 +19,11 @@ class PrefixedPasswordHasherSelector(
   private val urlDecoder = Base64.getUrlDecoder()
 
   fun hashWithPossiblePrefix(
-    password: ByteArray,
+    password: String,
     salt: ByteArray,
-    fallback: () -> ByteArray
+    fallback: (ByteArray) -> ByteArray
   ): String {
+    val passwordBytes = password.toByteArray()
     val hasher = prefixedCryptoResolver.tryGetRegisteredPasswordHasher()
 
     return if (hasher != null) {
@@ -31,23 +32,30 @@ class PrefixedPasswordHasherSelector(
         payload = urlEncoder.encodeToString(hasher.hash(password, salt))
       )
     } else {
-      encoderBase64.encode(fallback())
+      encoderBase64.encode(fallback(passwordBytes))
     }
   }
 
   fun verifyHash(
     expectedHashBase64: String,
-    password: ByteArray,
+    password: String,
     salt: ByteArray,
-    fallback: () -> ByteArray
+    fallback: (ByteArray) -> ByteArray
   ): Boolean {
+    val passwordBytes = password.toByteArray()
     val (prefix, payload) = splitPrefixedValue(expectedHashBase64)
 
-    val actualBytes =
+    val hasher =
       prefix
         ?.let { prefixedCryptoResolver.passwordHasherByPrefix(it) }
-        ?.hash(password, salt)
-        ?: fallback()
+
+    if (hasher != null) {
+      val expectedBytes = urlDecoder.decode(payload)
+
+      return hasher.matches(expectedBytes, password, salt)
+    }
+
+    val actualBytes = fallback(passwordBytes)
 
     val expectedBytes =
       if (prefix != null) {

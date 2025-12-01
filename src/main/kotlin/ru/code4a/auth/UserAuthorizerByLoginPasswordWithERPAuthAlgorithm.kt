@@ -63,7 +63,7 @@ class UserAuthorizerByLoginPasswordWithERPAuthAlgorithm(
       val isHashValid =
         userAuthorizationHashComputer.verifyHashBase64(
           expectedHashBase64 = user.authorizationHashBase64,
-          password = password.toByteArray(),
+          password = password,
           authorizationSalt = authorizationSalt
         )
 
