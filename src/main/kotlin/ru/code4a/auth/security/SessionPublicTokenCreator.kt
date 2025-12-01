@@ -12,13 +12,17 @@ class SessionPublicTokenCreator(
 ) {
   private var privateSessionTokenSalt: ByteArray? = null
 
-  fun createBase64Token(sessionPrivateTokenBytes: ByteArray): String {
-    val privateSessionTokenSaltBytes = getPrivateSessionTokenSalt()
+  companion object {
+    private const val GLOBAL_SALT = "ru.code4a.auth.security.SessionPublicTokenCreator+vYaCvxA9o28DnfxPC9zKVMekrESfgKJg0E7ILdPlWJY"
+  }
 
+  fun createBase64Token(sessionPrivateTokenBytes: ByteArray): String {
     return prefixedSaltedHasherSelector.hashWithPossiblePrefix(
       input = sessionPrivateTokenBytes,
-      salt = privateSessionTokenSaltBytes,
+      salt = GLOBAL_SALT.toByteArray(),
       fallback = {
+        val privateSessionTokenSaltBytes = getLegacyPrivateSessionTokenSaltFromConfig()
+
         baseAuthHasherBytes.hash(
           sessionPrivateTokenBytes,
           privateSessionTokenSaltBytes
@@ -31,13 +35,13 @@ class SessionPublicTokenCreator(
     expectedSessionPublicTokenBase64: String,
     sessionPrivateTokenBytes: ByteArray
   ): Boolean {
-    val privateSessionTokenSaltBytes = getPrivateSessionTokenSalt()
-
     return prefixedSaltedHasherSelector.verifyHash(
       expectedHashBase64 = expectedSessionPublicTokenBase64,
       input = sessionPrivateTokenBytes,
-      salt = privateSessionTokenSaltBytes,
+      salt = GLOBAL_SALT.toByteArray(),
       fallback = {
+        val privateSessionTokenSaltBytes = getLegacyPrivateSessionTokenSaltFromConfig()
+
         baseAuthHasherBytes.hash(
           sessionPrivateTokenBytes,
           privateSessionTokenSaltBytes
@@ -46,7 +50,7 @@ class SessionPublicTokenCreator(
     )
   }
 
-  private fun getPrivateSessionTokenSalt(): ByteArray {
+  private fun getLegacyPrivateSessionTokenSaltFromConfig(): ByteArray {
     val cachedSalt = privateSessionTokenSalt
     if (cachedSalt != null) {
       return cachedSalt
